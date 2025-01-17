@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <!-- Include JQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" 
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" 
+        crossorigin="anonymous">
+    </script>
+
+    <title>TikTok Data Parser</title>
+</head>
+<body class="bg-dark text-white">
+
+<div class="container mt-5">
+    <h1 class="mb-4">TikTok Data Parser</h1>
+
+    <form id="dataForm" class="mb-4">
+        <div class="mb-3">
+            <label for="osSelect" class="form-label">Select Your Operating System</label>
+            <select class="form-select" id="osSelect" required>
+                <option value="">Choose...</option>
+                <option value="windows">Windows</option>
+                <option value="mac">Mac</option>
+                <option value="linux">Linux</option>
+            </select>
+        </div>
+
+        <div id="osSpecificFeedback">
+            <p class="text-muted">Please select an operating system to proceed.</p>
+        </div>
+
+        <div class="mb-3">
+            <label for="userDataFile" class="form-label">Upload Your TikTok User Data File (MUST BE JSON)</label>
+            <input class="form-control" type="file" id="userDataFile" accept=".json" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Select What to Download</label>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="videos" id="downloadVideos">
+                <label class="form-check-label" for="downloadVideos">Your Videos</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="reposts" id="downloadReposts">
+                <label class="form-check-label" for="downloadReposts">Your Reposts</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="collections" id="downloadCollections">
+                <label class="form-check-label" for="downloadCollections">Your Collections</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="likes" id="downloadLikes">
+                <label class="form-check-label" for="downloadLikes">Your Liked Videos</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Parse and Generate Script</button>
+    </form>
+
+    <div id="output" class="mt-4">
+        <div id="buttonWrapper"></div>
+        <h3>Parsed Data:</h3>
+        <pre id="parsedData" class="bg-secondary p-3 rounded"></pre>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        //Depending on the os they select, offer feedback on how they need to prepare to be able to run the script
+        $('#osSelect').on('change', function () {
+            const os = $(this).val();
+            let feedback = '';
+
+            if (os === 'windows') {
+                feedback = 'To run the script on Windows, you will need to have cURL installed. You can download it from https://curl.se/windows/.';
+            } else if (os === 'mac') {
+                feedback = 'To run the script on Mac, you will need to have cURL installed. You can install it using Homebrew by running "brew install curl".';
+            } else if (os === 'linux') {
+                feedback = 'Do you really need my help with this? Just kidding. To run the script on Linux, you will need to have cURL installed. You can install it using your package manager (e.g., "sudo apt install curl").';
+            }
+
+            $('#osSpecificFeedback').html(`<p class="text-muted">${feedback}</p>`);
+        });
+
+        $('#dataForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const os = $('#osSelect').val();
+            const fileInput = $('#userDataFile')[0].files[0];
+
+            if (!os || !fileInput) {
+                alert('Please select an operating system and upload a file.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                try {
+                    const data = JSON.parse(event.target.result);
+
+                    // Initialize parsed data object
+                    const parsedData = {};
+
+                    // Include the requested data
+                    const selectedCategories = [];
+                    if ($('#downloadVideos').is(':checked')){
+                        videos = getVideos(data);
+                        parsedData.videos = videos;
+                    }
+                    if ($('#downloadReposts').is(':checked')){
+                        reposts = getReposts(data);
+                        parsedData.reposts = reposts;
+                    }
+                    if ($('#downloadCollections').is(':checked')){
+                        collections = getCollections(data);
+                        parsedData.collections = collections;
+                    }
+                    if ($('#downloadLikes').is(':checked')){
+                        likes = getLikes(data);
+                        parsedData.likes = likes;
+                    }
+
+                    $('#parsedData').text(JSON.stringify(parsedData, null, 2));
+
+                    // Generate script based on OS and parsed data
+                    const script = generateDownloadScript(os, parsedData);
+
+                    // Provide script download
+                    const blob = new Blob([script], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+
+                    const link = document.createElement('a');
+                    link.href = url;
+                    
+                    // Set the filename based on the OS
+                    let filename = 'download-script';
+                    if (os === 'windows') {
+                        filename += '.bat';
+                    } else if (os === 'mac') {
+                        filename += '.sh';
+                    } else if (os === 'linux') {
+                        filename += '.sh';
+                    }
+                    
+                    link.textContent = 'Download Your Script';
+                    link.className = 'btn btn-success mt-3';
+                    link.download = filename;
+
+                    $('#buttonWrapper').html(link);
+                } catch (error) {
+                    alert('Error parsing JSON file: ' + error.message);
+                }
+            };
+
+            reader.readAsText(fileInput);
+        });
+
+        function generateDownloadScript(os, data) {
+            if(os === 'windows') {
+                return generateWindowsScript(data);
+            } else if(os === 'mac') {
+                return generateMacScript(data);
+            } else if(os === 'linux') {
+                return generateLinuxScript(data);
+            } else {
+                return 'echo "Invalid operating system selected."';
+            }
+        }
+
+        function getVideos(data) {
+            //data.Video.Videos contains a list of objects like this "Video": {"Videos": {"VideoList": [{"Date": "2025-01-16 23:50:04","Link": "https://url","Likes": "1449","WhoCanView": "Everyone","AllowComments": "Yes","AllowStitches": "Yes","AllowDuets": "No","AllowStickers": "Yes","AllowSharingToStory": "Yes","ContentDisclosure": "","AIGeneratedContent": "","Sound": "original sound - cjtrowbridge","Location": "","Title": "","AddYoursText": "N/A"},}
+            //We want to get the link from each object and a clean version of the date to use as the filename so the files are sortable once downloaded. This should use only hyphens and numbers, and if there are duplicate times, it needs to include an extra ordinal.
+            //The result should be an array of objects like this: [{"url": "https://url","filename": "2025-01-16-23-50-04.mp4"}]
+
+            const videos = data.Video.Videos.VideoList;
+            ret = videos.map(video => {
+                const date = video.Date.replace(/[^0-9]/g, '-');
+                return {
+                    url: video.Link,
+                    filename: `video_${date}.mp4`
+                };
+            });
+
+            console.log("Found These Videos: ",ret);
+            return ret;
+        }
+
+        function getReposts(data) {
+            //Activity.Share History.ShareHistoryList has a list of objects like this "Activity": {"Share History": {"ShareHistoryList": [{"Date": "2024-07-21 15:29:53","SharedContent": "share_video","Link": "https://url/","Method": "chat_head"},
+            //We want to get the link from each object and a clean version of the date to use as the filename so the files are sortable once downloaded. This should use only hyphens and numbers, and if there are duplicate times, it needs to include an extra ordinal.
+            //The result should be an array of objects like this: [{"url": "https://url/","filename": "2024-07-21-15-29-53.mp4"}]
+
+            const reposts = data.Activity['Share History']['ShareHistoryList'];
+            ret = reposts.map(repost => {
+                const date = repost.Date.replace(/[^0-9]/g, '-');
+                return {
+                    url: repost.Link,
+                    filename: `repost_${date}.mp4`
+                };
+            });
+
+            console.log("Found These Reposts: ",ret);
+            return ret;
+        }
+
+        function getCollections(data) {
+            //i dont have collections so i cant test or implement this with my data. someone do a pull request
+
+        }
+
+        function getLikes(data) {
+            //Activity.Like List.ItemFavoriteList has a list of objects like this "Activity": {"Like List": {"ItemFavoriteList": [{"date": "2024-07-21 15:29:53","LikedContent": "like_video","Link": "https://url/"}
+            //We want to get the link from each object and a clean version of the date to use as the filename so the files are sortable once downloaded. This should use only hyphens and numbers, and if there are duplicate times, it needs to include an extra ordinal.
+            //The result should be an array of objects like this: [{"url": "https://url/", "filename": "2024-07-21-15-29-53.mp4"}]
+
+            const likes = data.Activity['Like List'].ItemFavoriteList;
+            ret = likes.map(like => {
+                const date = like.date.replace(/[^0-9]/g, '-');
+                return {
+                    url: like.Link,
+                    filename: `like_${date}.mp4`
+                };
+            });
+
+            console.log("Found These Likes: ",ret);
+            return ret;
+        }
+
+        function generateWindowsScript(data) {
+            // Example script generation for Windows
+            let script = '@echo off\n';
+            script += 'echo Downloading TikTok data...\n';
+
+            if (data.videos) {
+                script += 'echo Downloading videos...\n';
+                data.videos.forEach(video => {
+                    script += `curl -o "${video.filename}" "${video.url}"\n`;
+                });
+            }
+
+            if (data.reposts) {
+                script += 'echo Downloading reposts...\n';
+                data.reposts.forEach(repost => {
+                    script += `curl -o "${repost.filename}" "${repost.url}"\n`;
+                });
+            }
+
+            if (data.collections) {
+                script += 'echo Downloading collections...\n';
+                data.collections.forEach(collection => {
+                    script += `curl -o "${collection.filename}" "${collection.url}"\n`;
+                });
+            }
+
+            if (data.likes) {
+                script += 'echo Downloading liked videos...\n';
+                data.likes.forEach(like => {
+                    script += `curl -o "${like.filename}" "${like.url}"\n`;
+                });
+            }
+
+            return script;
+        }
+
+        function generateMacScript(data) {
+            // Example script generation for Mac
+            let script = '#!/bin/bash\n';
+            script += 'echo "Downloading TikTok data..."\n';
+
+            if (data.videos) {
+                script += 'echo "Downloading videos..."\n';
+                data.videos.forEach(video => {
+                    script += `curl -o "${video.filename}" "${video.url}"\n`;
+                });
+            }
+
+            if (data.reposts) {
+                script += 'echo "Downloading reposts..."\n';
+                data.reposts.forEach(repost => {
+                    script += `curl -o "${repost.filename}" "${repost.url}"\n`;
+                });
+            }
+
+            if (data.collections) {
+                script += 'echo "Downloading collections..."\n';
+                data.collections.forEach(collection => {
+                    script += `curl -o "${collection.filename}" "${collection.url}"\n`;
+                });
+            }
+
+            if (data.likes) {
+                script += 'echo "Downloading liked videos..."\n';
+                data.likes.forEach(like => {
+                    script += `curl -o "${like.filename}" "${like.url}"\n`;
+                });
+            }
+
+            return script;
+        }
+
+        function generateLinuxScript(data) {
+            // Example script generation for Linux
+            let script = '#!/bin/bash\n';
+            script += 'echo "Downloading TikTok data..."\n';
+
+            if (data.videos) {
+                script += 'echo "Downloading videos..."\n';
+                data.videos.forEach(video => {
+                    script += `curl -o "${video.filename}" "${video.url}"\n`;
+                });
+            }
+
+            if (data.reposts) {
+                script += 'echo "Downloading reposts..."\n';
+                data.reposts.forEach(repost => {
+                    script += `curl -o "${repost.filename}" "${repost.url}"\n`;
+                });
+            }
+
+            if (data.collections) {
+                script += 'echo "Downloading collections..."\n';
+                data.collections.forEach(collection => {
+                    script += `curl -o "${collection.filename}" "${collection.url}"\n`;
+                });
+            }
+
+            if (data.likes) {
+                script += 'echo "Downloading liked videos..."\n';
+                data.likes.forEach(like => {
+                    script += `curl -o "${like.filename}" "${like.url}"\n`;
+                });
+            }
+
+            return script;
+        }
+
+
+
+    });
+</script>
+
+</body>
+</html>
