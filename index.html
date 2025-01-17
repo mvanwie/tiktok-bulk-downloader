@@ -78,11 +78,11 @@
             let feedback = '';
 
             if (os === 'windows') {
-                feedback = 'To run the script on Windows, you will need to have cURL installed. You can download it from https://curl.se/windows/.';
+                feedback = 'You will need to have cURL installed to run the script. You can download it from https://curl.se/windows/. In order to download reposts, liked videos, and collections, you will need to have yt-dlp installed. You can download it from https://github.com/yt-dlp/yt-dlp';
             } else if (os === 'mac') {
-                feedback = 'To run the script on Mac, you will need to have cURL installed. You can install it using Homebrew by running "brew install curl".';
+            feedback = 'You will need to have cURL installed to run the script. You can install it using Homebrew with the command "brew install curl". In order to download reposts, liked videos, and collections, you will need to have yt-dlp installed. You can download it from https://github.com/yt-dlp/yt-dlp';
             } else if (os === 'linux') {
-                feedback = 'Do you really need my help with this? Just kidding. To run the script on Linux, you will need to have cURL installed. You can install it using your package manager (e.g., "sudo apt install curl").';
+                feedback = 'You will need to have cURL installed to run the script. You can install it using your package manager. In order to download reposts, liked videos, and collections, you will need to have yt-dlp installed. You can download it from https://github.com/yt-dlp/yt-dlp';
             }
 
             $('#osSpecificFeedback').html(`<p class="text-muted">${feedback}</p>`);
@@ -247,21 +247,27 @@
             if (data.reposts) {
                 script += 'echo Downloading reposts...\n';
                 data.reposts.forEach(repost => {
-                    script += `curl -o "${repost.filename}" "${repost.url}"\n`;
+                    //script += `curl -o "${repost.filename}" "${repost.url}"\n`;
+                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
 
             if (data.collections) {
                 script += 'echo Downloading collections...\n';
                 data.collections.forEach(collection => {
-                    script += `curl -o "${collection.filename}" "${collection.url}"\n`;
+                    //script += `curl -o "${collection.filename}" "${collection.url}"\n`;
+                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
 
             if (data.likes) {
                 script += 'echo Downloading liked videos...\n';
                 data.likes.forEach(like => {
-                    script += `curl -o "${like.filename}" "${like.url}"\n`;
+                    //script += `curl -o "${like.filename}" "${like.url}"\n`;
+                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
 
@@ -283,21 +289,27 @@
             if (data.reposts) {
                 script += 'echo "Downloading reposts..."\n';
                 data.reposts.forEach(repost => {
-                    script += `curl -o "${repost.filename}" "${repost.url}"\n`;
+                    //script += `curl -o "${repost.filename}" "${repost.url}"\n`;
+                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
 
             if (data.collections) {
                 script += 'echo "Downloading collections..."\n';
                 data.collections.forEach(collection => {
-                    script += `curl -o "${collection.filename}" "${collection.url}"\n`;
+                    //script += `curl -o "${collection.filename}" "${collection.url}"\n`;
+                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
 
             if (data.likes) {
                 script += 'echo "Downloading liked videos..."\n';
                 data.likes.forEach(like => {
-                    script += `curl -o "${like.filename}" "${like.url}"\n`;
+                    //script += `curl -o "${like.filename}" "${like.url}"\n`;
+                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
 
@@ -319,21 +331,27 @@
             if (data.reposts) {
                 script += 'echo "Downloading reposts..."\n';
                 data.reposts.forEach(repost => {
-                    script += `curl -o "${repost.filename}" "${repost.url}"\n`;
+                    //script += `curl -o "${repost.filename}" "${repost.url}"\n`;
+                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
 
             if (data.collections) {
                 script += 'echo "Downloading collections..."\n';
                 data.collections.forEach(collection => {
-                    script += `curl -o "${collection.filename}" "${collection.url}"\n`;
+                    //script += `curl -o "${collection.filename}" "${collection.url}"\n`;
+                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
 
             if (data.likes) {
                 script += 'echo "Downloading liked videos..."\n';
                 data.likes.forEach(like => {
-                    script += `curl -o "${like.filename}" "${like.url}"\n`;
+                    //script += `curl -o "${like.filename}" "${like.url}"\n`;
+                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
 
