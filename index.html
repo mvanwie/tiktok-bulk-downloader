@@ -210,8 +210,21 @@
         }
 
         function getCollections(data) {
-            //i dont have collections so i cant test or implement this with my data. someone do a pull request
+            //Activity.Favorite Videos.FavoriteVieoList has a list of objects like this "Activity": {"Favorite Videos": {"App": 1,"FavoriteVideoList": [{"Date": "2025-01-17 07:35:23","Link": "https://www.tiktokv.com/share/video/7460600247060811038/"},
+            //We want to get the link from each object and a clean version of the date to use as the filename so the files are sortable once downloaded. This should use only hyphens and numbers, and if there are duplicate times, it needs to include an extra ordinal.
+            //The result should be an array of objects like this: [{"url": "https://url/","filename": "2025-01-17-07-35-23"}]
 
+            const collections = data.Activity['Favorite Videos'].FavoriteVideoList;
+            ret = collections.map(collection => {
+                const date = collection.Date.replace(/[^0-9]/g, '-');
+                return {
+                    url: collection.Link,
+                    filename: `collection_${date}.mp4`
+                };
+            });
+
+            console.log("Found These Collections: ",ret);
+            return ret;
         }
 
         function getLikes(data) {
