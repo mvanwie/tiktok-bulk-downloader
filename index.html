@@ -101,7 +101,7 @@
 
             const reader = new FileReader();
             reader.onload = function (event) {
-                try {
+                //try {
                     const data = JSON.parse(event.target.result);
 
                     // Initialize parsed data object
@@ -153,9 +153,9 @@
                     link.download = filename;
 
                     $('#buttonWrapper').html(link);
-                } catch (error) {
-                    alert('Error parsing JSON file: ' + error.message);
-                }
+                //} catch (error) {
+                  //  alert('Error parsing JSON file: ' + error.message + '. Try refreshing the page.');
+                //}
             };
 
             reader.readAsText(fileInput);
@@ -174,7 +174,7 @@
         }
 
         function getVideos(data) {
-            //data.Video.Videos contains a list of objects like this "Video": {"Videos": {"VideoList": [{"Date": "2025-01-16 23:50:04","Link": "https://url","Likes": "1449","WhoCanView": "Everyone","AllowComments": "Yes","AllowStitches": "Yes","AllowDuets": "No","AllowStickers": "Yes","AllowSharingToStory": "Yes","ContentDisclosure": "","AIGeneratedContent": "","Sound": "original sound - cjtrowbridge","Location": "","Title": "","AddYoursText": "N/A"},}
+            //data.Video.Videos contains a list of objects 
             //We want to get the link from each object and a clean version of the date to use as the filename so the files are sortable once downloaded. This should use only hyphens and numbers, and if there are duplicate times, it needs to include an extra ordinal.
             //The result should be an array of objects like this: [{"url": "https://url","filename": "2025-01-16-23-50-04.mp4"}]
 
@@ -192,7 +192,7 @@
         }
 
         function getReposts(data) {
-            //Activity.Share History.ShareHistoryList has a list of objects like this "Activity": {"Share History": {"ShareHistoryList": [{"Date": "2024-07-21 15:29:53","SharedContent": "share_video","Link": "https://url/","Method": "chat_head"},
+            //Activity.Share History.ShareHistoryList has a list of objects
             //We want to get the link from each object and a clean version of the date to use as the filename so the files are sortable once downloaded. This should use only hyphens and numbers, and if there are duplicate times, it needs to include an extra ordinal.
             //The result should be an array of objects like this: [{"url": "https://url/","filename": "2024-07-21-15-29-53.mp4"}]
 
@@ -210,7 +210,7 @@
         }
 
         function getCollections(data) {
-            //Activity.Favorite Videos.FavoriteVieoList has a list of objects like this "Activity": {"Favorite Videos": {"App": 1,"FavoriteVideoList": [{"Date": "2025-01-17 07:35:23","Link": "https://www.tiktokv.com/share/video/7460600247060811038/"},
+            //Activity.Favorite Videos.FavoriteVieoList has a list of objects
             //We want to get the link from each object and a clean version of the date to use as the filename so the files are sortable once downloaded. This should use only hyphens and numbers, and if there are duplicate times, it needs to include an extra ordinal.
             //The result should be an array of objects like this: [{"url": "https://url/","filename": "2025-01-17-07-35-23"}]
 
@@ -228,7 +228,7 @@
         }
 
         function getLikes(data) {
-            //Activity.Like List.ItemFavoriteList has a list of objects like this "Activity": {"Like List": {"ItemFavoriteList": [{"date": "2024-07-21 15:29:53","LikedContent": "like_video","Link": "https://url/"}
+            //Activity.Like List.ItemFavoriteList has a list of objects
             //We want to get the link from each object and a clean version of the date to use as the filename so the files are sortable once downloaded. This should use only hyphens and numbers, and if there are duplicate times, it needs to include an extra ordinal.
             //The result should be an array of objects like this: [{"url": "https://url/", "filename": "2024-07-21-15-29-53.mp4"}]
 
@@ -270,7 +270,7 @@
                 script += 'echo Downloading collections...\n';
                 data.collections.forEach(collection => {
                     //script += `curl -o "${collection.filename}" "${collection.url}"\n`;
-                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    //This has to be done with yt-dlp because collections are not available for download via the tiktok api
                     script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
@@ -279,7 +279,7 @@
                 script += 'echo Downloading liked videos...\n';
                 data.likes.forEach(like => {
                     //script += `curl -o "${like.filename}" "${like.url}"\n`;
-                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    //This has to be done with yt-dlp because likes are not available for download via the tiktok api
                     script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
@@ -312,7 +312,7 @@
                 script += 'echo "Downloading collections..."\n';
                 data.collections.forEach(collection => {
                     //script += `curl -o "${collection.filename}" "${collection.url}"\n`;
-                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    //This has to be done with yt-dlp because collections are not available for download via the tiktok api
                     script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
@@ -321,7 +321,7 @@
                 script += 'echo "Downloading liked videos..."\n';
                 data.likes.forEach(like => {
                     //script += `curl -o "${like.filename}" "${like.url}"\n`;
-                    //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
+                    //This has to be done with yt-dlp because likes are not available for download via the tiktok api
                     script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
                 });
             }
@@ -355,7 +355,7 @@
                 data.collections.forEach(collection => {
                     //script += `curl -o "${collection.filename}" "${collection.url}"\n`;
                     //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
-                    script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
+                    script += `yt-dlp -o "${collections.filename}" "${collections.url}"\n`;
                 });
             }
 
@@ -364,7 +364,7 @@
                 data.likes.forEach(like => {
                     //script += `curl -o "${like.filename}" "${like.url}"\n`;
                     //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
-                    script += `yt-dlp -o "${repost.filename}" "${repost.url}"\n`;
+                    script += `yt-dlp -o "${likes.filename}" "${likes.url}"\n`;
                 });
             }
 
