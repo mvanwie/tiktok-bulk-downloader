@@ -358,7 +358,7 @@
                 data.collections.forEach(collection => {
                     //script += `curl -o "${collection.filename}" "${collection.url}"\n`;
                     //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
-                    script += `yt-dlp -o "${collections.filename}" "${collections.url}"\n`;
+                    script += `yt-dlp -o "${collection.filename}" "${collection.url}"\n`;
                 });
             }
 
