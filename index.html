@@ -239,7 +239,7 @@
             ret = likes.map(like => {
                 const date = like.date.replace(/[^0-9]/g, '-');
                 return {
-                    url: like.Link,
+                    url: like.link,
                     filename: `like_${date}.mp4`
                 };
             });
@@ -367,7 +367,7 @@
                 data.likes.forEach(like => {
                     //script += `curl -o "${like.filename}" "${like.url}"\n`;
                     //This has to be done with yt-dlp because reposts are not available for download via the tiktok api
-                    script += `yt-dlp -o "${likes.filename}" "${likes.url}"\n`;
+                    script += `yt-dlp -o "${like.filename}" "${like.url}"\n`;
                 });
             }
 
